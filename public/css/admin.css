@@ -1,0 +1,335 @@
+/* ============================================================
+   Capa visual del panel de administración
+   Archivo: views/css/admin.css
+   ------------------------------------------------------------
+   Se carga DESPUÉS de views/css/inicio.css (ver partials/head_admin.php).
+
+   Motivo: inicio.css es una hoja heredada compartida con las vistas
+   legado (login, solicitud, reporte, citas...) y define reglas globales
+   que pisan los componentes de Bootstrap en TODO el panel:
+
+     inicio.css:342  .btn        -> fondo azul + padding 10px + font-weight 200
+                                     => .btn-outline-* quedan sólidos
+                                     => .btn-sm se ve a tamaño completo
+     inicio.css:725  button:hover -> cualquier <button> se pone azul marino
+                                     y salta 2% (rompe .btn-close, .nav-link)
+     inicio.css:191  main        -> margin-left:10% sin compensar el header fijo
+     inicio.css:249  .barra-lateral -> top:0 sin z-index, el header lo tapa
+     inicio.css:56   .header     -> fixed, 80px de alto
+
+   Aquí se neutralizan SOLO dentro del panel admin, sin tocar inicio.css,
+   para que las vistas legado conserven su aspecto original.
+   ============================================================ */
+
+/* ============================================================
+   1. LAYOUT: header fijo, sidebar desplegable y main
+   ------------------------------------------------------------
+   El layout (padding del body, altura del header y posición del
+   drawer) vive ahora en responsive.css, que es común a todas las
+   vistas. Aquí solo se garantiza que el contenido ocupa el 100%
+   del ancho y queda por debajo del panel lateral.
+   ============================================================ */
+
+main {
+  margin-left: 0 !important;
+  margin-right: 0;
+  padding-top: 0 !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  min-height: calc(100vh - var(--iaa-header-h));
+}
+
+/* ============================================================
+   2. BOTONES
+   inicio.css:342 define un .btn global (fondo azul, padding 10px,
+   font-weight 200, margin 5px) que pisa a Bootstrap y rompe:
+     - .btn-outline-* quedan con fondo azul sólido en vez deoutline
+     - .btn-sm se ve a tamaño completo
+   Aquí se neutralizan SOLO esas propiedades mecánicas. Los colores y la
+   forma de pastilla de .btn-primary / .btn-secondary / .btn-success /
+   .btn-danger los sigue aportando inicio.css: el panel mantiene su
+   identidad visual y no se repinta de golpe.
+   ============================================================ */
+
+.btn {
+  margin: 0;
+  padding: .375rem .75rem;
+  font-size: 1rem;
+  font-weight: 400;
+  line-height: 1.5;
+  border-radius: .25rem;
+  box-shadow: none;
+  text-decoration: none;
+  vertical-align: middle;
+  cursor: pointer;
+  transition: color .15s ease-in-out, background-color .15s ease-in-out,
+    border-color .15s ease-in-out, box-shadow .15s ease-in-out;
+}
+
+/* inicio.css deja el fondo azul y el borde azul en la base; las variantes
+   que en Bootstrap son "vacías" o de otro color necesitan liberarse. */
+.btn-outline-primary,
+.btn-outline-secondary,
+.btn-outline-danger {
+  background-color: transparent;
+}
+
+.btn-outline-primary {
+  color: #0d6efd;
+  border-color: #0d6efd;
+}
+
+.btn-outline-secondary {
+  color: #6c757d;
+  border-color: #6c757d;
+}
+
+.btn-outline-danger {
+  color: #dc3545;
+  border-color: #dc3545;
+}
+
+.btn-outline-primary:hover {
+  color: #fff;
+  background-color: #0d6efd;
+  border-color: #0d6efd;
+}
+
+.btn-outline-secondary:hover {
+  color: #fff;
+  background-color: #6c757d;
+  border-color: #6c757d;
+}
+
+.btn-outline-danger:hover {
+  color: #fff;
+  background-color: #dc3545;
+  border-color: #dc3545;
+}
+
+.btn-light {
+  color: #000;
+  background-color: #f8f9fa;
+  border-color: #f8f9fa;
+}
+
+.btn-light:hover {
+  color: #000;
+  background-color: #e2e6ea;
+  border-color: #e2e6ea;
+}
+
+.btn-dark {
+  color: #fff;
+  background-color: #212529;
+  border-color: #212529;
+}
+
+.btn-dark:hover {
+  color: #fff;
+  background-color: #424649;
+  border-color: #424649;
+}
+
+.btn-warning {
+  color: #000;
+  background-color: #ffc107;
+  border-color: #ffc107;
+}
+
+.btn-warning:hover {
+  color: #000;
+  background-color: #ffca2c;
+  border-color: #ffca2c;
+}
+
+.btn-info {
+  color: #000;
+  background-color: #0dcaf0;
+  border-color: #0dcaf0;
+}
+
+.btn-info:hover {
+  color: #000;
+  background-color: #31d2f2;
+  border-color: #31d2f2;
+}
+
+/* La base neutralizada (.btn) llega después que inicio.css, así que hay que
+   devolverles la proportion de pastilla que tenían. */
+.btn-primary {
+  padding: .5rem 1.4rem;
+  border-radius: 40px;
+}
+
+.btn-secondary {
+  padding: .375rem 1.2rem;
+  border-radius: 40px;
+}
+
+.btn-primary.btn-sm,
+.btn-secondary.btn-sm,
+.btn-success.btn-sm,
+.btn-danger.btn-sm,
+.btn-outline-secondary.btn-sm {
+  padding: .25rem .8rem;
+  border-radius: 20px;
+}
+
+/* Tamaños */
+.btn-sm {
+  padding: .25rem .5rem;
+  font-size: .875rem;
+  border-radius: .2rem;
+}
+
+.btn-lg {
+  padding: .5rem 1rem;
+  font-size: 1.25rem;
+  border-radius: .3rem;
+}
+
+.btn-group-sm > .btn,
+.btn-group-sm > .btn-group > .btn {
+  padding: .25rem .5rem;
+  font-size: .875rem;
+  border-radius: .2rem;
+}
+
+/* ============================================================
+   3. BOTONES DE CIERRE DE MODAL
+   inicio.css:725 (button:hover) ponía fondo azul marino sobre el aspa
+   y además la escalaba un 2%.
+   ============================================================ */
+
+button:hover {
+  background-color: transparent;
+  transform: none;
+}
+
+.btn-close {
+  box-shadow: none;
+  opacity: .5;
+}
+
+.btn-close:hover {
+  background-color: transparent;
+  transform: none;
+  opacity: .75;
+}
+
+.btn-close-white {
+  opacity: .75;
+}
+
+.btn-close-white:hover {
+  background-color: transparent;
+  transform: none;
+  opacity: 1;
+}
+
+/* ============================================================
+   4. CLASES PROPIAS DE inicio.css QUE COVIVEN CON .btn
+   Se re-afirman para que el bloque anterior no las pise
+   (misma especificidad, admin.css va después).
+   ============================================================ */
+
+.btn-celeste {
+  background-color: #17a2b8;
+  border-color: #17a2b8;
+  color: #fff;
+}
+
+.btn-celeste:hover {
+  background-color: #138496;
+  border-color: #138496;
+  color: #fff;
+}
+
+.btn-eliminar {
+  background-color: #dc3545;
+  border-color: #dc3545;
+  color: #fff;
+}
+
+.btn-eliminar:hover {
+  background-color: #b02a37;
+  border-color: #b02a37;
+  color: #fff;
+}
+
+/* ============================================================
+   5. RESPONSIVE
+   responsive.css (importada por inicio.css) pisa la utilidad
+   .flex-grow-1 de Bootstrap con !important en <992px, dejando
+   las tarjetas y modales sin márgenes.
+   ============================================================ */
+
+@media (max-width: 991.98px) {
+  .flex-grow-1 {
+    margin-left: 0;
+    margin-right: 0;
+    padding: 1rem 1rem 1rem 1rem;
+  }
+}
+
+/* ============================================================
+   6. ACCESIBILIDAD
+   Los .dropdown-toggle del sidebar no declaraban estado expanded.
+   ============================================================ */
+
+.bl.dropdown-toggle[aria-expanded="true"] {
+  background-color: #e2e8f0;
+}
+
+/* ============================================================
+   7. SUBMENÚ ANIDADO (Herramientas > Mantenimiento)
+   El bloque .dropdown-content anidado se despliega hacia el
+   lado para no romper el ancho de la barra lateral (175px).
+   ============================================================ */
+
+.dropdown-content .dropdown-item-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  cursor: pointer;
+}
+
+.dropdown-content .dropdown-item-toggle .caret {
+  transition: transform .15s ease;
+}
+
+.dropdown-content .dropdown-item-toggle[aria-expanded="true"] {
+  background-color: #e9ecef;
+}
+
+.dropdown-content .dropdown-item-toggle[aria-expanded="true"] .caret {
+  transform: rotate(90deg);
+}
+
+/* El submenú va dentro del propio desplegable, no flotando a la derecha:
+   .barra-lateral usa overflow-y:auto, que recorta cualquier panel posicionado
+   fuera de sus 175px de ancho (por eso Mantenimiento parecía no abrir). */
+.dropdown-content.submenu {
+  position: static;
+  left: auto;
+  top: auto;
+  min-width: auto;
+  box-shadow: none;
+  background-color: #eef1f5;
+  padding-left: 22px;
+  z-index: auto;
+}
+
+.dropdown {
+  position: relative;
+}
+
+@media (max-width: 991.98px) {
+  .dropdown-content.submenu {
+    position: static;
+    min-width: auto;
+    box-shadow: none;
+    padding-left: 22px;
+  }
+}

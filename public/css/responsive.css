@@ -1,0 +1,1031 @@
+/* ============================================================
+   IAA · Responsive global + barra lateral desplegable
+   ------------------------------------------------------------
+   Reglas comunes a TODAS las vistas (admin, usuario y legado):
+
+     · El contenido ocupa SIEMPRE el 100% del ancho de la página.
+     · La barra lateral es un panel fijo (drawer) que se superpone
+       por encima del contenido.
+     · Arranca SIEMPRE recogida (translateX(-100%)).
+     · Se abre/cierra con el botón hamburguesa del header, con el
+       botón de cierre del propio panel, con Esc o pulsando el
+       fondo oscurecido.
+     · El JS que lo controla está en views/js/responsive.js.
+
+   Este archivo se importa al inicio de inicio.css.
+   ============================================================ */
+
+:root {
+  --iaa-header-h: 80px;
+  --iaa-header-h-mobile: 64px;
+  --iaa-sidebar-w: 260px;
+  --iaa-drawer-z: 1200;
+  --iaa-backdrop-z: 1150;
+}
+
+/* ============================================================
+   1. LAYOUT BASE
+   ============================================================ */
+
+html,
+body {
+  max-width: 100%;
+  overflow-x: hidden;
+}
+
+body {
+  margin: 0;
+  /* inicio.css aplica un padding:20px global; en el layout del panel el
+     contenido debe llegar a los bordes. El alto del header lo aporta
+     body.iaa-layout más abajo. */
+  padding-left: 0 !important;
+  padding-right: 0 !important;
+  padding-bottom: 0 !important;
+}
+
+/* El header es fijo: el body reserva su alto. La clase la añade
+   head_admin.php (admin) o responsive.js (vistas legado). */
+body.iaa-layout {
+  padding-top: var(--iaa-header-h);
+}
+
+/* El contenido nunca se desplaza a la derecha por la barra lateral:
+   ocupa todo el ancho y queda por debajo del panel. */
+main {
+  display: block;
+  width: 100% !important;
+  max-width: 100% !important;
+  margin: 0 !important;
+  padding-top: 0 !important;
+  box-sizing: border-box;
+}
+
+/* inicio.css heredada desplaza TODAS las tarjetas 60px a la derecha.
+   El panel ya no reserva el ancho de la barra lateral (es un drawer),
+   así que ese margen solo desperdicia pantalla y descentra el contenido. */
+body.iaa-layout .card {
+  margin-left: 0;
+}
+
+/* Los títulos propios de las vistas legado ya no necesitan el 9% de
+   margen superior: el hueco lo aporta el padding del body. */
+.h1titulo {
+  margin-top: .75rem !important;
+  padding: 0 1rem;
+}
+
+/* Refuerzo: ninguna fila/columna debe generar scroll horizontal. */
+img,
+video,
+iframe,
+canvas {
+  max-width: 100%;
+}
+
+.row {
+  max-width: 100%;
+}
+
+/* ============================================================
+   2. HEADER + BOTÓN HAMBURGUESA
+   ============================================================ */
+
+.header {
+  height: var(--iaa-header-h) !important;
+  min-height: var(--iaa-header-h) !important;
+  padding: 8px 16px;
+  z-index: 1100;
+}
+
+.header .navbar,
+.header .navbar .container,
+.header .navbar .container-fluid {
+  width: 100%;
+  max-width: 100%;
+  display: flex;
+  align-items: center;
+  flex-wrap: nowrap;
+  gap: .5rem;
+}
+
+.header .logo-area {
+  min-width: 0;
+}
+
+.header .logo-area-text {
+  min-width: 0;
+}
+
+.header .logo-area-text h1 {
+  white-space: nowrap;
+}
+
+/* Botón hamburguesa (lo inserta responsive.js si no existe). */
+.iaa-menu-toggle {
+  display: inline-flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 4px;
+  flex: 0 0 auto;
+  width: 42px;
+  height: 42px;
+  padding: 0;
+  margin: 0;
+  border: 1px solid #d7dde5;
+  border-radius: 10px;
+  background: #fff;
+  color: #1e3a5f;
+  cursor: pointer;
+  transition: background-color .15s ease, border-color .15s ease, box-shadow .15s ease;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.iaa-menu-toggle:hover {
+  background: #f1f5f9;
+  border-color: #b9c4d2;
+  transform: none;
+}
+
+.iaa-menu-toggle:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 .2rem rgba(30, 58, 95, .25);
+}
+
+.iaa-menu-toggle span {
+  display: block;
+  width: 20px;
+  height: 2px;
+  border-radius: 2px;
+  background: currentColor;
+  transition: transform .2s ease, opacity .2s ease;
+}
+
+/* Animación a "X" cuando el panel está abierto. */
+body.iaa-sidebar-open .iaa-menu-toggle span:nth-child(1) {
+  transform: translateY(6px) rotate(45deg);
+}
+
+body.iaa-sidebar-open .iaa-menu-toggle span:nth-child(2) {
+  opacity: 0;
+}
+
+body.iaa-sidebar-open .iaa-menu-toggle span:nth-child(3) {
+  transform: translateY(-6px) rotate(-45deg);
+}
+
+/* ============================================================
+   3. BARRA LATERAL (DRAWER)
+   ============================================================ */
+
+.barra-lateral {
+  position: fixed !important;
+  top: var(--iaa-header-h) !important;
+  left: 0 !important;
+  bottom: auto !important;
+  width: var(--iaa-sidebar-w) !important;
+  max-width: 86vw !important;
+  height: calc(100vh - var(--iaa-header-h)) !important;
+  margin: 0 !important;
+  padding: .5rem .55rem 1.5rem !important;
+  background: #ffffff !important;
+  border-right: 1px solid #e3e7ee !important;
+  box-shadow: 10px 0 30px rgba(15, 23, 42, .18) !important;
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+  transform: translateX(-105%) !important;
+  visibility: hidden;
+  opacity: 1;
+  transition: transform .25s ease, visibility .25s ease;
+  z-index: var(--iaa-drawer-z) !important;
+  overscroll-behavior: contain;
+}
+
+.barra-lateral.is-open {
+  transform: translateX(0) !important;
+  visibility: visible;
+}
+
+/* Cabecera interna del panel (la crea responsive.js). */
+.iaa-sidebar-cabecera {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: .5rem;
+  padding: .35rem .5rem .7rem;
+  margin-bottom: .35rem;
+  border-bottom: 1px solid #eef1f5;
+}
+
+.iaa-sidebar-cabecera .iaa-sidebar-titulo {
+  font-size: .68rem;
+  font-weight: 700;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: #8b95a3;
+}
+
+.iaa-sidebar-cerrar {
+  display: inline-grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  padding: 0;
+  border: 1px solid #e3e7ee;
+  border-radius: 9px;
+  background: #fff;
+  color: #495057;
+  cursor: pointer;
+  transition: background-color .15s ease, color .15s ease;
+}
+
+.iaa-sidebar-cerrar:hover {
+  background: #dc3545;
+  border-color: #dc3545;
+  color: #fff;
+  transform: none;
+}
+
+/* Enlaces del panel. */
+.barra-lateral a,
+.barra-lateral .dropdown-toggle {
+  display: block;
+  width: 100%;
+  margin: 2px 0 !important;
+  padding: .62rem .8rem !important;
+  border-radius: 9px;
+  font-size: .9rem;
+  line-height: 1.3;
+  text-align: left !important;
+  text-decoration: none;
+  color: #1f2937;
+  transition: background-color .15s ease, color .15s ease;
+}
+
+/* inicio.css fija un margin-top del 60% en .blMenu: en el drawer
+   provocaba un hueco enorme. */
+.barra-lateral a.blMenu {
+  margin-top: 2px !important;
+}
+
+.barra-lateral a:hover,
+.barra-lateral .dropdown-toggle:hover {
+  background-color: #eef2f7;
+  color: #1e3a5f;
+}
+
+.barra-lateral a.active {
+  background-color: rgba(30, 60, 114, .12);
+  color: #1e3c72;
+  font-weight: 600;
+  box-shadow: inset 3px 0 0 #1e3c72;
+}
+
+.barra-lateral .dropdown {
+  position: relative;
+  width: 100%;
+}
+
+.barra-lateral .dropdown-content {
+  display: none;
+  background: #f7f9fc;
+  border-radius: 9px;
+  margin: 2px 0 4px;
+  padding: 3px;
+  box-shadow: none;
+  min-width: 0;
+  width: 100%;
+}
+
+.barra-lateral .dropdown-content a {
+  padding: .5rem .7rem !important;
+  font-size: .84rem;
+  border-radius: 7px;
+}
+
+.barra-lateral .dropdown-content.submenu {
+  position: static;
+  margin-left: .4rem;
+  width: calc(100% - .4rem);
+  background: #eef2f7;
+}
+
+.barra-lateral .dropdown-item-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+/* Fondo oscurecido tras el panel. */
+.iaa-sidebar-backdrop {
+  position: fixed;
+  top: var(--iaa-header-h);
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: var(--iaa-backdrop-z);
+  background: rgba(15, 23, 42, .45);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .22s ease;
+}
+
+body.iaa-sidebar-open .iaa-sidebar-backdrop {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+body.iaa-sidebar-open {
+  overflow: hidden;
+}
+
+/* ============================================================
+   4. TABLAS Y CONTENIDO EN PANTALLAS PEQUEÑAS
+   ============================================================ */
+
+@media (max-width: 991.98px) {
+  :root {
+    --iaa-header-h: 64px;
+  }
+
+  body.iaa-layout {
+    padding-top: var(--iaa-header-h-mobile);
+  }
+
+  .header {
+    height: var(--iaa-header-h-mobile) !important;
+    min-height: var(--iaa-header-h-mobile) !important;
+    padding: 6px 10px;
+  }
+
+  .barra-lateral {
+    top: var(--iaa-header-h-mobile) !important;
+    height: calc(100vh - var(--iaa-header-h-mobile)) !important;
+  }
+
+  .iaa-sidebar-backdrop {
+    top: var(--iaa-header-h-mobile);
+  }
+
+  .header .logo-area img {
+    width: 38px !important;
+    height: 38px !important;
+  }
+
+  .header .logo-area-text p {
+    display: none !important;
+  }
+
+  .header .logo-area-text h1 {
+    font-size: 1.05rem !important;
+    margin: 0 !important;
+  }
+
+  /* Selector de rol compacto en el header. */
+  .header .navbar form[action*="redireccionarRol"] {
+    margin-left: auto;
+    gap: 6px !important;
+    flex: 0 1 auto;
+    min-width: 0;
+  }
+
+  .header .navbar form[action*="redireccionarRol"] .badge {
+    font-size: 0 !important;
+    padding: .42rem .48rem !important;
+    line-height: 1 !important;
+  }
+
+  .header .navbar form[action*="redireccionarRol"] .badge i {
+    font-size: 1rem;
+    margin: 0 !important;
+  }
+
+  .header .navbar form[action*="redireccionarRol"] .form-select-sm {
+    max-width: 118px;
+    font-size: .74rem !important;
+    padding: .3rem .5rem !important;
+  }
+
+  .form-main {
+    margin-left: 0 !important;
+    padding: 16px 12px !important;
+  }
+
+  .flex-grow-1 {
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+    padding: 12px !important;
+  }
+
+  /* El contenido flexible nunca debe imponer su ancho mínimo al
+     viewport cuando la barra lateral ya es un cajón fijo. */
+  main.d-flex > .flex-grow-1 {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+  }
+
+  .h1titulo {
+    margin-top: .5rem !important;
+    font-size: 1.3rem !important;
+    padding: 0 .75rem;
+  }
+
+  /* Tablas anchas: scroll horizontal controlado. */
+  .table-responsive {
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+  }
+
+  main > table,
+  main .table:not(.table-responsive) {
+    display: block !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+    white-space: nowrap !important;
+  }
+
+  .btn,
+  .btnnn,
+  input[type="submit"],
+  button[type="submit"] {
+    max-width: 100% !important;
+  }
+
+  /* Selects e inputs nunca más anchos que su columna. */
+  .form-control,
+  .form-select,
+  input,
+  select,
+  textarea {
+    max-width: 100%;
+  }
+}
+
+@media (max-width: 575.98px) {
+  :root {
+    --iaa-sidebar-w: 84vw;
+  }
+
+  .header .logo-area img {
+    width: 34px !important;
+    height: 34px !important;
+  }
+
+  .header .logo-area-text h1 {
+    font-size: .98rem !important;
+  }
+
+  .header .navbar form[action*="redireccionarRol"] .form-select-sm {
+    max-width: 96px;
+    font-size: .7rem !important;
+  }
+
+  .iaa-menu-toggle {
+    width: 38px;
+    height: 38px;
+  }
+
+  .h1titulo {
+    font-size: 1.15rem !important;
+  }
+
+  /* Calendario del panel médico: en lugar de aplastar las 7 columnas,
+     se permite desplazamiento horizontal dentro de la tarjeta. */
+  .srv-cal {
+    overflow-x: auto !important;
+  }
+
+  .srv-cal-grid {
+    min-width: 620px;
+  }
+
+  /* Contenedores con padding grande en escritorio. */
+  .reportes-container {
+    margin: 1rem auto;
+    padding: 1rem;
+    border-radius: 12px;
+  }
+
+  .modal-dialog {
+    margin: .5rem;
+  }
+}
+
+/* Ajustes compartidos para formularios, tarjetas y datos en pantallas tactiles. */
+img,
+video,
+iframe,
+canvas,
+svg {
+  max-width: 100%;
+}
+
+.card,
+.card-body,
+.modal-content,
+.modal-header,
+.modal-footer,
+.form-main,
+.reportes-container,
+.container-fluid,
+.container {
+  min-width: 0;
+}
+
+.card-header,
+.modal-header,
+.modal-footer {
+  flex-wrap: wrap;
+  gap: .75rem;
+}
+
+.form-control,
+.form-select,
+input,
+select,
+textarea {
+  min-width: 0;
+}
+
+@media (max-width: 767.98px) {
+  .header .navbar .container,
+  .header .navbar .container-fluid {
+    padding-right: .65rem !important;
+    padding-left: .65rem !important;
+  }
+
+  .header .logo-area {
+    flex: 1 1 auto;
+  }
+
+  .header .logo-area-text {
+    overflow: hidden;
+  }
+
+  .header .logo-area-text h1 {
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  main {
+    padding-right: .75rem;
+    padding-left: .75rem;
+  }
+
+  main .container,
+  main .container-fluid {
+    padding-right: .75rem;
+    padding-left: .75rem;
+  }
+
+  .form-main {
+    padding: 1rem !important;
+  }
+
+  .seccion-formulario,
+  .card-body {
+    padding: 1rem !important;
+  }
+
+  .form-grid {
+    grid-template-columns: minmax(0, 1fr) !important;
+    gap: 1rem;
+  }
+
+  .campo-full {
+    grid-column: 1 / -1;
+  }
+
+  .table-responsive,
+  .table-responsive > table {
+    max-width: 100%;
+  }
+
+  .modal-dialog {
+    width: auto;
+    max-width: calc(100% - 1rem);
+    margin: .5rem auto;
+  }
+
+  .modal-content {
+    max-height: calc(100vh - 1rem);
+    max-height: calc(100dvh - 1rem);
+    overflow: hidden;
+  }
+
+  .modal-body {
+    min-height: 0;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* Áreas táctiles más cómodas sin cambiar el tamaño de escritorio. */
+  body.iaa-layout .btn:not(.btn-sm),
+  body.iaa-layout button:not(.btn):not(.iaa-menu-toggle),
+  body.iaa-layout input[type="submit"],
+  body.iaa-layout input[type="button"] {
+    min-height: 44px;
+  }
+
+  body.iaa-layout .btn-sm {
+    min-height: 44px;
+  }
+
+  body.iaa-layout .form-control,
+  body.iaa-layout .form-select {
+    min-height: 44px;
+  }
+}
+
+@media (max-width: 399.98px) {
+  .header .logo-area-text h1 {
+    font-size: .88rem !important;
+  }
+
+  .header .navbar .badge.bg-danger {
+    padding: .4rem !important;
+    font-size: 0 !important;
+  }
+
+  .header .navbar .badge.bg-danger i {
+    margin: 0 !important;
+    font-size: .95rem;
+  }
+
+  .header .navbar form[action*="redireccionarRol"] .form-select-sm {
+    max-width: 82px;
+    font-size: .66rem !important;
+  }
+
+  .form-main,
+  .reportes-container {
+    padding: .75rem !important;
+  }
+}
+
+@supports (height: 100dvh) {
+  .barra-lateral {
+    height: calc(100dvh - var(--iaa-header-h)) !important;
+  }
+}
+
+/* ============================================================
+   5. CONTENIDO GENERAL EN MÓVIL
+   ------------------------------------------------------------
+   Reglas de acabado para que las vistas heredadas y las nuevas
+   compartan el mismo comportamiento táctil: títulos legibles,
+   tarjetas sin desbordes, tablas con desplazamiento controlado,
+   modales cómodos y barras de acciones que se reacomodan.
+   ============================================================ */
+
+@media (max-width: 991.98px) {
+  /* Agenda de citas: la rejilla semanal conserva su tamaño y se
+     desplaza dentro de la tarjeta en vez de aplastar las columnas. */
+  .agenda-wrapper {
+    padding: .75rem !important;
+    padding-top: .75rem !important;
+    min-height: 0 !important;
+    background: transparent !important;
+  }
+
+  .agenda-wrapper > .card > .card-body {
+    padding: .75rem !important;
+  }
+
+  .agenda-table-wrap {
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior-x: contain;
+  }
+
+  #calendarTable {
+    min-width: 720px;
+  }
+
+  body.iaa-layout .table-responsive > .table {
+    margin-bottom: 0;
+  }
+}
+
+@media (max-width: 767.98px) {
+  /* Títulos y textos --------------------------------------- */
+  main h1,
+  main h2,
+  main h3,
+  main h4,
+  main .h1titulo {
+    overflow-wrap: anywhere;
+  }
+
+  main p,
+  main li,
+  main dd,
+  main dt,
+  main td,
+  main th {
+    overflow-wrap: break-word;
+  }
+
+  main > .container-fluid,
+  main > .container {
+    padding-right: .75rem !important;
+    padding-left: .75rem !important;
+  }
+
+  /* El panel lateral es un cajón fijo: el bloque de contenido debe
+     ocupar todo el ancho y poder encogerse sin arrastrar la página. */
+  main.d-flex {
+    display: block !important;
+    width: 100%;
+  }
+
+  main.d-flex > .flex-grow-1 {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+    padding-right: .85rem !important;
+    padding-left: .85rem !important;
+  }
+
+  /* Contenedores heredados con relleno lateral excesivo. */
+  main.d-flex > .flex-grow-1 > .container-fluid {
+    padding-right: 0 !important;
+    padding-left: 0 !important;
+    width: 100%;
+  }
+
+  /* Evita que el zoom automático de iOS deforme formularios. */
+  input,
+  select,
+  textarea,
+  .form-control,
+  .form-select {
+    font-size: 16px !important;
+  }
+
+  .form-label,
+  .form-text,
+  .form-check-label {
+    overflow-wrap: anywhere;
+  }
+
+  .input-group {
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+
+  .input-group > .form-control,
+  .input-group > .form-select {
+    min-width: 0;
+  }
+
+  /* Tarjetas y paneles ------------------------------------- */
+  .card,
+  .ui-panel,
+  .poa-card,
+  .expediente-seccion {
+    border-radius: 12px;
+  }
+
+  .card-body {
+    padding: .9rem !important;
+  }
+
+  .card-header {
+    padding: .7rem .85rem !important;
+  }
+
+  .card-header h5,
+  .card-header h6 {
+    font-size: .88rem;
+    line-height: 1.3;
+  }
+
+  /* Barras de acciones: si hay botones, se permite el salto de línea. */
+  .card-body .d-flex:has(> .btn),
+  .card-header .d-flex:has(> .btn),
+  .modal-footer:has(> .btn),
+  .modal-footer .d-flex:has(> .btn) {
+    flex-wrap: wrap;
+  }
+
+  .card-body .d-flex:has(> .btn) > .btn,
+  .card-header .d-flex:has(> .btn) > .btn {
+    flex: 1 1 auto;
+  }
+
+  body.iaa-layout .btn {
+    white-space: normal;
+  }
+
+  /* Barras de filtros con ancho fijo inline (reportes, solicitudes). */
+  .card-body > .d-flex[style*="fit-content"] {
+    width: 100% !important;
+    flex-wrap: wrap !important;
+    justify-content: center !important;
+    gap: .5rem !important;
+  }
+
+  .card-body > .d-flex[style*="fit-content"] > .form-control {
+    flex: 1 1 140px;
+    width: auto !important;
+    min-width: 0;
+  }
+
+  .table-responsive[style*="margin-top"] {
+    margin-top: .75rem !important;
+  }
+
+  /* Tablas -------------------------------------------------- */
+  .table-responsive {
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior-x: contain;
+  }
+
+  .table-responsive > .table {
+    margin-bottom: 0;
+  }
+
+  .table > :not(caption) > * > * {
+    padding: .52rem .58rem;
+    vertical-align: middle;
+  }
+
+  .table thead th {
+    font-size: .72rem;
+    line-height: 1.25;
+  }
+
+  .table td,
+  .table th {
+    font-size: .82rem;
+  }
+
+  /* Paginación táctil */
+  .pagination {
+    flex-wrap: wrap;
+    gap: .2rem;
+  }
+
+  .pagination .page-link {
+    min-width: 38px;
+    min-height: 38px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  /* Tabs y pastillas: desplazamiento horizontal, nunca aplastadas. */
+  .nav-tabs,
+  .nav-pills {
+    flex-wrap: nowrap !important;
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    scrollbar-width: none;
+  }
+
+  .nav-tabs::-webkit-scrollbar,
+  .nav-pills::-webkit-scrollbar {
+    display: none;
+  }
+
+  .nav-tabs .nav-link,
+  .nav-pills .nav-link {
+    white-space: nowrap;
+  }
+
+  .modal-header .nav-pills {
+    width: 100% !important;
+    margin: .5rem 0 0 !important;
+    order: 3;
+  }
+
+  /* Modales ------------------------------------------------ */
+  .modal-dialog {
+    max-width: calc(100vw - .75rem) !important;
+    margin: .4rem auto !important;
+  }
+
+  .modal-content {
+    max-height: calc(100dvh - .8rem);
+    border-radius: 14px;
+  }
+
+  .modal-header,
+  .modal-footer {
+    flex-wrap: wrap;
+    gap: .5rem;
+  }
+
+  .modal-footer > .btn {
+    flex: 1 1 140px;
+    min-height: 44px;
+  }
+
+  .modal-title {
+    overflow-wrap: anywhere;
+  }
+
+  /* Formularios apilados y cómodos. */
+  .row > [class*="col-"] > .form-label,
+  .row > [class*="col-"] > small {
+    line-height: 1.35;
+  }
+
+  /* Sidebar desplegable: enlaces con área táctil suficiente. */
+  .barra-lateral a,
+  .barra-lateral .dropdown-toggle {
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+  }
+
+  .iaa-sidebar-cabecera {
+    position: sticky;
+    top: 0;
+    z-index: 2;
+    background: #fff;
+  }
+}
+
+@media (max-width: 575.98px) {
+  /* Indicadores compactos: dos columnas en lugar de una pila larga.
+     Solo aplica a filas que ya declaran 1 columna en móvil y 2+ en
+     pantallas mayores (paneles de indicadores). */
+  .row-cols-1.row-cols-sm-2 > .col {
+    flex: 0 0 auto;
+    width: 50%;
+  }
+
+  /* Encabezados formados por un título y un botón en la misma fila:
+     el título ocupa todo el ancho y la acción queda debajo. */
+  main .row > [class*="col-"] > .d-flex:has(> :is(h1, h2, h3, h4, h5)),
+  main .row > [class*="col-"].d-flex:has(> :is(h1, h2, h3, h4, h5)) {
+    flex-wrap: wrap;
+    align-items: flex-start !important;
+  }
+
+  main .row > [class*="col-"] > .d-flex:has(> :is(h1, h2, h3, h4, h5)) > :is(h1, h2, h3, h4, h5),
+  main .row > [class*="col-"].d-flex:has(> :is(h1, h2, h3, h4, h5)) > :is(h1, h2, h3, h4, h5) {
+    flex: 1 1 100%;
+    margin-bottom: .35rem !important;
+  }
+
+  main .row > [class*="col-"] > .d-flex:has(> :is(h1, h2, h3, h4, h5)) > .btn,
+  main .row > [class*="col-"].d-flex:has(> :is(h1, h2, h3, h4, h5)) > .btn {
+    flex: 1 1 100%;
+  }
+
+  /* Encabezados de página con acciones alineadas a la izquierda. */
+  .ui-titulo {
+    align-items: stretch;
+    gap: .6rem;
+  }
+
+  .ui-titulo > :last-child:not(:first-child) {
+    width: 100%;
+  }
+
+  .ui-filtros {
+    padding: .65rem .75rem;
+    gap: .45rem;
+  }
+
+  .ui-filtros .form-select,
+  .ui-filtros .form-control,
+  .ui-buscar {
+    max-width: none;
+    width: 100% !important;
+    flex-basis: 100%;
+  }
+
+  .ui-panel__cabecera {
+    padding: .7rem .75rem .55rem;
+  }
+
+  .ui-panel__sub {
+    white-space: normal;
+  }
+
+  .ui-pie {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  /* Botones de acción de tablas: más cómodos sin romper la fila. */
+  .ui-accion,
+  .cm-accion {
+    width: 36px;
+    height: 36px;
+  }
+
+  /* Encabezado del panel: espacio para el menú y el selector de rol. */
+  .header .logo-area-text h1 {
+    max-width: 42vw;
+  }
+}
